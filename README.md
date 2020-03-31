@@ -1,68 +1,83 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 配置环境变量实现 指令 运行 打包 不同后台地址
 
-## Available Scripts
+## 指令详解
 
-In the project directory, you can run:
+  ```bash
+    "scripts": {
+      "start": "dotenv -e .env.test react-app-rewired start",
+      "start--test": "dotenv -e .env.test react-app-rewired start",
+      "start--dev": "dotenv -e .env.dev react-app-rewired start",
+      "start--prod": "dotenv -e .env.prod react-app-rewired start",
+      "build": "dotenv -e .env.prod react-app-rewired build",
+      "build--test": "dotenv -e .env.test react-app-rewired build",
+      "build--prod": "dotenv -e .env.prod react-app-rewired build",
+      "test": "react-app-rewired test",
+      "eject": "react-app-rewired eject"
+    }
+  ```
 
-### `yarn start / ($env:REACT_APP_BASE_URL = "prod") -and (yarn start)`
+## 实现步骤
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+  1.初始化项目
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+  ```bash
+    yarn global add react-create-app
+    #OR
+    npm install react-create-app -g
+    # then
+    yarn create react-app my-app
+    cd my-app
+    yarn start
+  ```
 
-### `yarn test`
+  2.在项目根目录创建 **.env, .env.test, .env.prod** 文件内容类似
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  ```bash
+    # .env.test 其他文件相同
+    # react的环境变量最好是用 REACT_ 开头
+    REACT_APP_BASE_URL = '测试url'
+  ```
 
-### `yarn build`
+  3.使用 **react-app-rewired，customize-cra**
+    备注： react-app-rewired，customize-cra 简单来讲就是用来覆盖或者替换 react-create-app 默认配置， 而 config-overrides.js文件 是用来更改或者替换 react-app-rewired 默认配置的
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  ```bash
+    yarn add react-app-rewired customize-cra
+  ```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+  4.全局使用 **dotenv-cli**， 使用说明：<https://github.com/entropitor/dotenv-cli>
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  ```bash
+    yarn global add dotenv-cli
+  ```
 
-### `yarn eject`
+  5.在项目根目录创建 **config-overrides.js** 文件内容如下, 使用Antd时候也会用到
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  ```bash
+    module.exports = function override(config, env) {
+      // do stuff with the webpack config...
+      return config
+    }
+  ```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  6.指令说明
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  ```bash
+    # start
+    yarn start
+    yarn start--test
+    yarn start--dev
+    yarn start--prod
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+    # build
+    yarn build
+    yarn build--test
+    yarn build--prod
+  ```
 
-## Learn More
+  7.修改项目的 **api的入口url**, 就能根据不同的环境变量的值来作为不同的后台请求地址了
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+  ```bash
+    // const BASE  = 'http://123.123.123:8080'
+    const BASE = 'process.env.REACT_APP_BASE_URL'
+  ```
